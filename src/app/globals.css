@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background: #09090b;
+  color: #f4f4f5;
+}
+
+/* --- Leaflet overrides --------------------------------------------------- */
+
+/* The default div-icon chrome (white box + border) fights our custom markers. */
+.safety-marker {
+  background: transparent;
+  border: 0;
+}
+
+.leaflet-container {
+  background: #0b0f17;
+  font-family: inherit;
+}
+
+/* Keep the dark basemap reading correctly under our own UI layers. */
+.leaflet-control-attribution {
+  background: rgba(9, 9, 11, 0.75) !important;
+  color: #71717a !important;
+  font-size: 10px;
+}
+
+.leaflet-control-attribution a {
+  color: #a1a1aa !important;
+}
+
+.leaflet-bar a {
+  background: #18181b;
+  color: #e4e4e7;
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.leaflet-bar a:hover {
+  background: #27272a;
+}
+
+/* Scrollbars inside the side panel. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
