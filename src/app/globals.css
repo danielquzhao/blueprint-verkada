@@ -9,38 +9,31 @@ body {
   color: #f4f4f5;
 }
 
-/* --- Leaflet overrides --------------------------------------------------- */
+/* --- Mapbox overrides ---------------------------------------------------- */
 
-/* The default div-icon chrome (white box + border) fights our custom markers. */
-.safety-marker {
+.mapboxgl-map {
+  font-family: inherit;
+}
+
+/* Our markers are real JSX buttons, so strip the default marker chrome. */
+.mapboxgl-marker {
   background: transparent;
   border: 0;
 }
 
-.leaflet-container {
-  background: #0b0f17;
-  font-family: inherit;
-}
-
-/* Keep the dark basemap reading correctly under our own UI layers. */
-.leaflet-control-attribution {
-  background: rgba(9, 9, 11, 0.75) !important;
-  color: #71717a !important;
-  font-size: 10px;
-}
-
-.leaflet-control-attribution a {
-  color: #a1a1aa !important;
-}
-
-.leaflet-bar a {
+/* Zoom control, restyled to match the panel chrome. */
+.mapboxgl-ctrl-group {
   background: #18181b;
-  color: #e4e4e7;
-  border-bottom-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: none;
 }
 
-.leaflet-bar a:hover {
-  background: #27272a;
+.mapboxgl-ctrl-group button + button {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.mapboxgl-ctrl-group button .mapboxgl-ctrl-icon {
+  filter: invert(1) opacity(0.75);
 }
 
 /* Scrollbars inside the side panel. */

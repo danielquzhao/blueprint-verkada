@@ -1,46 +1,64 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
-import L from "leaflet";
-import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import { SEVERITY, type SafetyEvent, type Severity } from "@/lib/types";
+import { useEffect, useRef } from "react";
+import Map, { Marker, NavigationControl, type MapRef } from "react-map-gl/mapbox";
+import "mapbox-gl/dist/mapbox-gl.css";
+import { SEVERITY, type SafetyEvent } from "@/lib/types";
 
-const CAMPUS_CENTER: [number, number] = [43.4712, -80.5438];
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
-function markerIcon(severity: Severity, selected: boolean) {
-  const size = selected ? 22 : 16;
-  const color = SEVERITY[severity];
-  return L.divIcon({
-    // Styling comes from globals.css (leaflet's default div-icon chrome is reset there).
-    className: "safety-marker",
-    html: `
-      <div class="relative flex items-center justify-center" style="width:${size}px;height:${size}px">
-        <span class="absolute inline-flex h-full w-full animate-ping rounded-full ${color.dot} opacity-40"></span>
-        <span class="relative inline-flex rounded-full ${color.dot} border-2 border-white/90 shadow-lg" style="width:${size}px;height:${size}px"></span>
-        ${
-          selected
-            ? `<span class="absolute rounded-full border-2 ${color.border}" style="width:${size + 18}px;height:${size + 18}px"></span>`
-            : ""
-        }
-      </div>`,
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2],
-  });
+/** University of Waterloo campus. */
+const CAMPUS = { longitude: -80.5438, latitude: 43.4712 };
+
+function EventMarker({
+  event,
+  selected,
+  onSelect,
+}: {
+  event: SafetyEvent;
+  selected: boolean;
+  onSelect: (id: string) => void;
+}) {
+  const s = SEVERITY[event.severity];
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(event.id)}
+      aria-label={`${event.title} at ${event.building}`}
+      className="relative flex h-8 w-8 cursor-pointer items-center justify-center"
+    >
+      <span className={`absolute h-4 w-4 animate-ping rounded-full ${s.dot} opacity-40`} />
+      {selected && (
+        <span className={`absolute h-8 w-8 rounded-full border-2 ${s.border}`} />
+      )}
+      <span
+        className={`relative rounded-full border-2 border-white/90 shadow-lg ${s.dot} ${
+          selected ? "h-5 w-5" : "h-3.5 w-3.5"
+        }`}
+      />
+    </button>
+  );
 }
 
-/** Keeps the viewport on the selected event without fighting the user's panning. */
-function FlyToSelection({ event }: { event?: SafetyEvent }) {
-  const map = useMap();
-  const lat = event?.lat;
-  const lng = event?.lng;
-
-  useEffect(() => {
-    if (lat == null || lng == null) return;
-    map.flyTo([lat, lng], Math.max(map.getZoom(), 17), { duration: 0.6 });
-  }, [lat, lng, map]);
-
-  return null;
+function MissingToken() {
+  return (
+    <div className="flex h-full w-full items-center justify-center bg-zinc-950 p-8">
+      <div className="max-w-md rounded-lg border border-white/10 bg-white/[0.02] p-5">
+        <h2 className="text-sm font-semibold text-zinc-100">Mapbox token required</h2>
+        <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+          Add a public token to <code className="font-mono text-xs text-zinc-200">.env.local</code>{" "}
+          and restart the dev server:
+        </p>
+        <pre className="mt-3 overflow-x-auto rounded-md border border-white/10 bg-black/40 px-3 py-2 font-mono text-xs text-emerald-300">
+          NEXT_PUBLIC_MAPBOX_TOKEN=pk.your_token_here
+        </pre>
+        <p className="mt-3 text-xs text-zinc-500">
+          Create one at account.mapbox.com → Tokens. A default public token with the{" "}
+          <span className="text-zinc-400">styles:tiles</span> scope is enough.
+        </p>
+      </div>
+    </div>
+  );
 }
 
 export default function SafetyMap({
@@ -52,38 +70,43 @@ export default function SafetyMap({
   selectedId: string | null;
   onSelect: (id: string) => void;
 }) {
+  const mapRef = useRef<MapRef>(null);
   const selected = events.find((e) => e.id === selectedId);
+  const lat = selected?.lat;
+  const lng = selected?.lng;
 
-  // Icons are rebuilt only when the selection changes, not on every render.
-  const icons = useMemo(() => {
-    const map = new Map<string, L.DivIcon>();
-    for (const e of events) {
-      map.set(e.id, markerIcon(e.severity, e.id === selectedId));
-    }
-    return map;
-  }, [events, selectedId]);
+  // Ease the viewport onto the selected event without fighting manual panning.
+  useEffect(() => {
+    if (lat == null || lng == null) return;
+    mapRef.current?.flyTo({ center: [lng, lat], zoom: 16.5, duration: 900 });
+  }, [lat, lng]);
+
+  if (!MAPBOX_TOKEN) return <MissingToken />;
 
   return (
-    <MapContainer
-      center={CAMPUS_CENTER}
-      zoom={16}
-      scrollWheelZoom
-      className="h-full w-full"
+    <Map
+      ref={mapRef}
+      mapboxAccessToken={MAPBOX_TOKEN}
+      initialViewState={{ ...CAMPUS, zoom: 15.5 }}
+      mapStyle="mapbox://styles/mapbox/dark-v11"
       attributionControl={false}
+      style={{ width: "100%", height: "100%" }}
     >
-      <TileLayer
-        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-        attribution='&copy; OpenStreetMap contributors &copy; CARTO'
-      />
-      <FlyToSelection event={selected} />
+      <NavigationControl position="top-right" showCompass={false} />
       {events.map((event) => (
         <Marker
           key={event.id}
-          position={[event.lat, event.lng]}
-          icon={icons.get(event.id)}
-          eventHandlers={{ click: () => onSelect(event.id) }}
-        />
+          longitude={event.lng}
+          latitude={event.lat}
+          anchor="center"
+        >
+          <EventMarker
+            event={event}
+            selected={event.id === selectedId}
+            onSelect={onSelect}
+          />
+        </Marker>
       ))}
-    </MapContainer>
+    </Map>
   );
 }
