@@ -10,6 +10,33 @@ import type { SafetyEvent } from "./types";
  */
 export const EVENTS: SafetyEvent[] = [
   {
+    id: "evt-1043",
+    title: "Student backpack & valuables theft reported",
+    category: "intrusion",
+    severity: "high",
+    status: "active",
+    location: "Main Locker Room — Level 1",
+    building: "Physical Activities Complex",
+    lat: 43.4713,
+    lng: -80.5465,
+    minutesAgo: 4,
+    device: { name: "PAC-LockerRoom-North", model: "CD52", kind: "Camera" },
+    summary:
+      "A student reported their backpack and electronics stolen from the PAC locker room bench area. Verkada Person History analytics flagged an unidentified individual leaving with multiple bags that did not match locker room usage patterns.",
+    readings: [
+      { label: "Camera AI", value: "Person of interest carrying 2 backpacks" },
+      { label: "Loitering time", value: "12 min in locker bench zone" },
+      { label: "Access check", value: "Tailgated through main entrance turnstile" },
+      { label: "Exit corridor", value: "Spotted heading toward East Exit at 16:42" },
+    ],
+    actions: [
+      "Run Verkada Appearance Search for suspect clothing and bags",
+      "Pull clip from PAC East Exit camera (#08) to capture escape route",
+      "Dispatch campus security officer to meet student at PAC front desk",
+      "Export video evidence bundle for campus security / police filing",
+    ],
+  },
+  {
     id: "evt-1042",
     title: "Panic button activated",
     category: "duress",
