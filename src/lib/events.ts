@@ -313,4 +313,15 @@ export const EVENTS: SafetyEvent[] = [
   },
 ];
 
-export const BUILDING_COUNT = new Set(EVENTS.map((e) => e.building)).size;
+export const BUILDINGS = Array.from(
+  new Map(EVENTS.map((e) => [e.building, { name: e.building, lat: e.lat, lng: e.lng }])).values(),
+).sort((a, b) => a.name.localeCompare(b.name));
+
+export const BUILDING_COUNT = BUILDINGS.length;
+
+export const REPORT_ACTIONS = [
+  "Keep a safe distance — do not intervene",
+  "If anyone is in immediate danger, call 911",
+  "Notify UW Special Constable Service at 519-888-4911",
+  "Stay available to describe what you saw",
+];

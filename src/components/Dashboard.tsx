@@ -2,11 +2,12 @@
 
 import dynamic from "next/dynamic";
 import { useState } from "react";
-import { Settings, ShieldCheck } from "lucide-react";
+import { Plus, Settings, ShieldCheck } from "lucide-react";
 import SidePanel from "./SidePanel";
 import SettingsModal from "./SettingsModal";
-import { BUILDING_COUNT, EVENTS } from "@/lib/events";
-import { SEVERITY, type Severity } from "@/lib/types";
+import ReportIncidentModal from "./ReportIncidentModal";
+import { EVENTS } from "@/lib/events";
+import { SEVERITY, type SafetyEvent, type Severity } from "@/lib/types";
 
 const SafetyMap = dynamic(() => import("./SafetyMap"), {
   ssr: false,
@@ -27,8 +28,10 @@ function Stat({ value, label, tone }: { value: number | string; label: string; t
 }
 
 export default function Dashboard() {
+  const [events, setEvents] = useState<SafetyEvent[]>(EVENTS);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
   const [notificationPreferences, setNotificationPreferences] = useState<Record<Severity, boolean>>({
     critical: true,
     high: true,
@@ -52,10 +55,17 @@ export default function Dashboard() {
     });
   };
 
-  const active = EVENTS.filter((e) => e.status === "active");
-  const critical = EVENTS.filter((e) => e.severity === "critical" && e.status !== "resolved");
-  const devices = new Set(EVENTS.map((e) => e.device.name)).size;
+  const active = events.filter((e) => e.status === "active");
+  const critical = events.filter((e) => e.severity === "critical" && e.status !== "resolved");
+  const devices = new Set(events.map((e) => e.device.name)).size;
+  const buildings = new Set(events.map((e) => e.building)).size;
   const subscribedSeveritiesCount = Object.values(notificationPreferences).filter(Boolean).length;
+
+  const addReport = (event: SafetyEvent) => {
+    setEvents((prev) => [event, ...prev]);
+    setSelectedId(event.id);
+    setIsReportOpen(false);
+  };
 
   return (
     <div className="flex h-dvh flex-col bg-zinc-950 text-zinc-100">
@@ -74,7 +84,7 @@ export default function Dashboard() {
           <Stat value={critical.length} label="critical" tone={SEVERITY.critical.text} />
           <Stat value={active.length} label="active" />
           <Stat value={devices} label="devices reporting" />
-          <Stat value={BUILDING_COUNT} label="buildings" />
+          <Stat value={buildings} label="buildings" />
           
           <button
             onClick={() => setIsSettingsOpen(true)}
@@ -89,18 +99,32 @@ export default function Dashboard() {
 
       <div className="flex min-h-0 flex-1">
         <main className="relative min-w-0 flex-1">
-          <SafetyMap events={EVENTS} selectedId={selectedId} onSelect={setSelectedId} />
+          <SafetyMap events={events} selectedId={selectedId} onSelect={setSelectedId} />
           <div className="pointer-events-none absolute bottom-3 left-3 z-[500] rounded-lg border border-white/10 bg-zinc-950/80 px-3 py-2 backdrop-blur">
             <p className="text-[11px] text-zinc-400">
-              {EVENTS.length} events plotted · click a marker for details
+              {events.length} events plotted · click a marker for details
             </p>
           </div>
+          <button
+            type="button"
+            onClick={() => setIsReportOpen(true)}
+            className="absolute right-4 bottom-4 z-[500] flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-3 text-sm font-semibold text-zinc-950 shadow-lg shadow-emerald-500/25 transition hover:bg-emerald-400"
+          >
+            <Plus className="h-4 w-4" />
+            Report incident
+          </button>
         </main>
 
         <aside className="w-[380px] shrink-0 border-l border-white/10">
-          <SidePanel events={EVENTS} selectedId={selectedId} onSelect={setSelectedId} />
+          <SidePanel events={events} selectedId={selectedId} onSelect={setSelectedId} />
         </aside>
       </div>
+
+      <ReportIncidentModal
+        isOpen={isReportOpen}
+        onClose={() => setIsReportOpen(false)}
+        onSubmit={addReport}
+      />
 
       <SettingsModal
         isOpen={isSettingsOpen}

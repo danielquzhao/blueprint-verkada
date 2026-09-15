@@ -96,7 +96,13 @@ function EventRow({
           </p>
           <div className="mt-1.5 flex items-center gap-1.5">
             <SeverityChip severity={event.severity} />
-            <span className="text-[11px] text-zinc-500">{event.device.model}</span>
+            {event.source === "report" ? (
+              <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[11px] text-emerald-300">
+                Report
+              </span>
+            ) : (
+              <span className="text-[11px] text-zinc-500">{event.device.model}</span>
+            )}
           </div>
         </div>
       </div>
@@ -161,7 +167,24 @@ function Detail({ event, onBack }: { event: SafetyEvent; onBack: () => void }) {
             What happened
           </h3>
           <p className="mt-2 text-sm leading-relaxed text-zinc-300">{event.summary}</p>
+          {event.source === "report" ? (
+            <p className="mt-2 text-xs text-zinc-500">
+              Filed by {event.reportedBy || "an anonymous campus reporter"}
+            </p>
+          ) : null}
         </section>
+
+        {event.attachment ? (
+          <section>
+            <h3 className="text-[11px] font-semibold tracking-wider text-zinc-500 uppercase">
+              Evidence
+            </h3>
+            <div className="mt-2 overflow-hidden rounded-lg border border-white/10">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={event.attachment} alt="Uploaded incident evidence" className="w-full object-cover" />
+            </div>
+          </section>
+        ) : null}
 
         <section>
           <h3 className="text-[11px] font-semibold tracking-wider text-zinc-500 uppercase">

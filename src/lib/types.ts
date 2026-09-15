@@ -37,6 +37,11 @@ export interface SafetyEvent {
   summary: string;
   readings: Reading[];
   actions: string[];
+  /** Present when a person filed this from the report button. */
+  source?: "device" | "report";
+  /** Optional photo evidence as a data URL. */
+  attachment?: string;
+  reportedBy?: string;
 }
 
 export const SEVERITY: Record<
