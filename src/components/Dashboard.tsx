@@ -75,7 +75,7 @@ export default function Dashboard() {
             <ShieldCheck className="h-4 w-4 text-emerald-400" />
           </span>
           <div className="leading-tight">
-            <h1 className="text-sm font-semibold">Sentinel</h1>
+            <h1 className="text-sm font-semibold">Geese Connect</h1>
             <p className="text-[11px] text-zinc-500">Verkada safety intelligence · Waterloo campus</p>
           </div>
         </div>

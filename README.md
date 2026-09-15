@@ -1,4 +1,4 @@
-# Sentinel — Verkada Safety Intelligence
+# Geese Connect — Verkada Safety Intelligence
 
 Map-based safety platform that turns Verkada's device ecosystem into a single live view.
 Safety events appear as markers on a campus map; selecting one opens a side panel with the

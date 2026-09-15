@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sentinel — Verkada Safety Intelligence",
+  title: "Geese Connect — Verkada Safety Intelligence",
   description:
     "Map-based safety platform that turns Verkada cameras, sensors, access control and alarms into a single live view.",
 };
