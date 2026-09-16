@@ -2,10 +2,9 @@
 
 Geese Connect is a real-time campus safety dashboard that brings Verkada cameras, sensors, access control, and alarms into one live view.
 
-<img width="1120" height="633" alt="image" src="https://github.com/user-attachments/assets/6fcc48db-20bd-465e-aef9-adfbe6272eef" />
+<img width="776" height="438" alt="image" src="https://github.com/user-attachments/assets/d403c4c8-bfbd-4b67-addd-1a18f8da65af" />
 <img width="1116" height="630" alt="image" src="https://github.com/user-attachments/assets/82e3bc6d-4266-47d4-980c-695d498e4829" />
 <img width="309" height="343" alt="image" src="https://github.com/user-attachments/assets/c91ac00f-c581-449c-ba3b-d7dd874978aa" />
-
 
 ## What it does
 
